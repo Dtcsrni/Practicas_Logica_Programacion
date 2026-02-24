@@ -27,7 +27,10 @@ void main()
         }
 
         if (condiciones < 2)
+        {
             condiciones = 0;
+            numero = 0;
+            iteraciones = 0;
     }
 
     // Cabecera de la tabla de multiplicar
