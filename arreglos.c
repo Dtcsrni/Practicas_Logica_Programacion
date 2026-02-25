@@ -56,5 +56,4 @@ void main()
     printf("Calificacion mas alta: %.2f\n", max_calificacion);
     printf("Calificacion mas baja: %.2f\n", min_calificacion);
     printf("======================\n");
-
 }
