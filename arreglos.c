@@ -5,6 +5,7 @@ void main()
 {
     // Definición de variables
     float calificaciones[NUM_MATERIAS];
+    char nombre[20];
     float suma = 0.0;
     float promedio, max_calificacion, min_calificacion;
 
@@ -15,6 +16,8 @@ void main()
     // Bucle para ingresar datos y calcular suma, max y min
     for (int i = 0; i < NUM_MATERIAS; i++)
     {
+        printf("Nombre del alumno: ");
+        scanf("%s", nombre); // Se lee el nombre del alumno (no se usa en cálculos)
         printf("Calificacion %d: ", i + 1);
         scanf("%f", &calificaciones[i]);
 
