@@ -4,7 +4,7 @@ void main()
     int numero, iteraciones;
     int condiciones = 0;
     while (condiciones != 2)
-    {
+    { 
         printf("::Generador de Tablas de Multiplicar::\n");
         printf("Ingrese un número entero\n");
         scanf("%d", &numero);
