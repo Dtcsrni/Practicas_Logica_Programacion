@@ -5,6 +5,7 @@ void main()
 {
     // Definición de variables
     float calificaciones[NUM_MATERIAS];
+    float calificaciones_ordenadas[NUM_MATERIAS];
     char nombre[20];
     float suma = 0.0;
     float promedio, max_calificacion, min_calificacion;
@@ -33,6 +34,7 @@ void main()
             if (calificaciones[i] > max_calificacion)
             {
                 max_calificacion = calificaciones[i]; // Actualiza max
+                calificaciones_ordenadas[i] = calificaciones[i]; // Guarda en arreglo ordenado (aunque no se ordena realmente)
             }
             if (calificaciones[i] < min_calificacion)
             {
