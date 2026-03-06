@@ -3,41 +3,44 @@
 
 // Mapa base fijo
 
+// ...existing code...
 static const char *MAPA_FIJO[ALTO] = {
     "###################",
-    "#                 #",
-    "#  #####          #",
-    "#      #          #",
-    "#      #   #####  #",
-    "#          #      #",
-    "#          #      #",
-    "#   #####  #      #",
-    "#                 #",
+    "###################",
+    "###################",
+    "#     #   # # # # #",
+    "#   # ##### #   # #",
+    "###   #   #   ### #",
+    "#   ### # ###   # #",
+    "# #     #     #   #",
+    "#   ##### #####   #",
     "###################"};
+// ...existing code...
 
 int juego_es_pared(const Juego *j, int x, int y)
 {
     // Fuera de mapa => pared
-    if (x < 0 || x >= ANCHO || y >= ALTO)
+    if (x < 0 || x >= ANCHO || y < 0 || y >= ALTO)
         return 1;
     return (j->mapa[y][x] == '#');
 }
+// Función para reiniciar la partida
 
-void juego_inicializar(Juego *j)
+void juego_reiniciar_partida(Juego *j)
 {
     for (int y = 0; y < ALTO; y++)
     {
         strncpy(j->mapa[y], MAPA_FIJO[y], ANCHO);
         j->mapa[y][ANCHO] = '\0'; // Asegurar terminacion nula
     }
-    // Posicion inicial del jugador
+
+    // Definir posicion inicial del jugador
     j->jugador_x = 1;
     j->jugador_y = 1;
 
-    // Si alguien cambia el mapa y esta posición cae
-    // en una pared, buscamos una alternativa simple
-    //(primera celda transitable)
-
+    // Validación de seguridad
+    // Si el mapa cambiara y la posición inicial fuera pared, entonces buscamos la primera celda libre
+    // en los alrededores y colocamos al jugador ahí
     if (juego_es_pared(j, j->jugador_x, j->jugador_y))
     {
         for (int y = 1; y < ALTO - 1; y++)
@@ -48,13 +51,23 @@ void juego_inicializar(Juego *j)
                 {
                     j->jugador_x = x;
                     j->jugador_y = y;
-                    y = ALTO;
-                    break; // Salir del ciclo externo
+                    y = ALTO; // Salir del ciclo externo
+                    break;    // Salir del ciclo interno
                 }
             }
         }
     }
     j->pasos = 0;
+}
+
+void juego_inicializar(Juego *j)
+{
+    // Al inicializar partida, ejecutar el método para reiniciar y de esa manera podamos adaptar el jugador
+    // en caso de que cambie el mapa
+    juego_reiniciar_partida(j);
+
+    // El programa ya no inicia directamente jugando si no, en un menú principal
+    j->estado = ESTADO_MENU;
 }
 void juego_intentar_mover(Juego *j, int dx, int dy)
 {
