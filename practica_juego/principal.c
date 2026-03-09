@@ -1,10 +1,7 @@
 #include "juego.h"
 #include "render.h"
 #include "entrada.h"
-#include "juego.c" // Incluir la implementación del juego para tener acceso a sus funciones
-#include "render.c"
-#include "entrada.c"
-#include "consola.c"
+#include "consola.h"
 #include <string.h>
 
 static void registrar_tecla(Juego *j, char tecla)

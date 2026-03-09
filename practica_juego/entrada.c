@@ -3,5 +3,13 @@
 
 char entrada_leer_tecla(void)
 {
-    return (char)_getch();
+    int tecla = _getch();
+
+    if (tecla == 0 || tecla == 224)
+    {
+        (void)_getch();
+        return '\0';
+    }
+
+    return (char)tecla;
 }
