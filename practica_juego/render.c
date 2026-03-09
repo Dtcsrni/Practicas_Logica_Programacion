@@ -69,6 +69,9 @@ void render_juego(const Juego *j)
             if (x == j->jugador_x && y == j->jugador_y)
             {
                 putchar('@'); // Dibujar al jugador
+            }else if(j->trofeo_activo && x == j->meta_x && y == j->meta_y)
+            {
+                putchar('$'); // Dibujar el trofeo
             }
             else
             {
@@ -78,4 +81,14 @@ void render_juego(const Juego *j)
         putchar('\n'); // Nueva línea al final de cada fila
     }
     puts("\nControles: W/A/S/D mover, P pausa, Q salir");
+}
+
+
+void render_victoria(const Juego *j)
+{
+    consola_limpiar_simple();
+    printf("=== ¡VICTORIA! ===\n");
+    printf("Has alcanzado la meta en %d pasos y %d choques.\n", j->pasos, j->choques);
+    printf("Presiona B para volver al menu principal,presiona R para reiniciar o presiona q para salir.\n");
+    printf("\nEstado: %s\n", j->mensaje);
 }

@@ -13,7 +13,8 @@ typedef enum {
     ESTADO_PAUSA,
     ESTADO_CONFIRMAR_MENU,
     ESTADO_INSTRUCCIONES,
-    ESTADO_SALIR
+    ESTADO_SALIR,
+    ESTADO_VICTORIA
 } EstadoJuego;
 
 
@@ -27,6 +28,9 @@ typedef struct {
     int partida_activa;
     char ultima_tecla;
     char mensaje[128];
+    int meta_x; 
+    int meta_y;
+    int trofeo_activo;
     EstadoJuego estado;
 } Juego;
 
@@ -37,6 +41,9 @@ void juego_reiniciar_partida(Juego *j);
 void juego_intentar_mover(Juego *j, int dx, int dy);
 
 int juego_es_pared(const Juego *j, int x, int y);
+
+void juego_agregar_trofeo(Juego *j, int x, int y);
+void juego_agregar_trofeo_aleatorio(Juego *j);
 
 #endif // JUEGO_H
 

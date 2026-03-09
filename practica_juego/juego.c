@@ -1,18 +1,20 @@
 #include "juego.h"
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
 
 // Mapa base fijo
 
 // ...existing code...
 static const char *MAPA_FIJO[ALTO] = {
     "###################",
-    "###################",
-    "###################",
+    "# ### #  ### ## ###",
+    "#                 #",
     "#     #   # # # # #",
     "#   # ##### #   # #",
-    "###   #   #   ### #",
+    "#       #     ### #",
     "#   ### # ###   # #",
-    "# #     #     #   #",
+    "#                 #",
     "#   ##### #####   #",
     "###################"};
 // ...existing code...
@@ -62,10 +64,13 @@ void juego_reiniciar_partida(Juego *j)
     j->partida_activa = 1;
     j->ultima_tecla = '-';
     strcpy(j->mensaje, "Partida iniciada.");
+
+    juego_agregar_trofeo_aleatorio(j);
 }
 
 void juego_inicializar(Juego *j)
 {
+    srand((unsigned int)time(NULL)); // Inicializar semilla para números aleatorios
     // Al inicializar partida, ejecutar el método para reiniciar y de esa manera podamos adaptar el jugador
     // en caso de que cambie el mapa
     juego_reiniciar_partida(j);
@@ -93,4 +98,61 @@ void juego_intentar_mover(Juego *j, int dx, int dy)
     j->jugador_y = ny;
     j->pasos++;
     strcpy(j->mensaje, "Movimiento realizado.");
+    // Verificar si el usuario llego a la meta
+    if (j->trofeo_activo && j->jugador_x == j->meta_x && j->jugador_y == j->meta_y)
+    {
+        j->estado = ESTADO_VICTORIA;
+        j->partida_activa = 0;
+        j->trofeo_activo = 0; // Desactivar el trofeo para que no se siga mostrando en el mapa
+        strcpy(j->mensaje, "¡Has alcanzado la meta!");
+    }
+}
+
+void juego_agregar_trofeo(Juego *j, int x, int y)
+{
+    //Validar que no quede fuera del mapa ni dentro de una pared
+    if(juego_es_pared(j, x, y))
+    {
+        j->trofeo_activo = 0;
+        strcpy(j->mensaje, "No se pudo colocar el trofeo, posición inválida.");
+    }
+    else{
+        //Evitar colocarlo encima del jugador
+        if(x == j->jugador_x && y == j->jugador_y)
+        {
+            j->trofeo_activo = 0;
+            strcpy(j->mensaje, "No se pudo colocar el trofeo, posición inválida.");
+        }
+        else{
+            j->meta_x = x;
+            j->meta_y = y;
+            j->trofeo_activo = 1;
+            strcpy(j->mensaje, "Trofeo colocado en el mapa.");
+        }
+    }
+}
+
+void juego_agregar_trofeo_aleatorio(Juego *j)
+{
+    int x;
+    int y;
+    int intentos = 0;
+    int max_intentos = 100;
+
+    do{
+        x = rand() % ANCHO;
+        y = rand() % ALTO;
+        intentos++;
+    }while(intentos < max_intentos && (juego_es_pared(j, x, y) || (x == j->jugador_x && y == j->jugador_y)));
+    if(intentos == max_intentos)
+    {
+        j->trofeo_activo = 0;
+        strcpy(j->mensaje, "No se pudo colocar el trofeo, no se encontró una posición válida.");
+        return;
+    }
+
+    j->meta_x = x;
+    j->meta_y = y;
+    j->trofeo_activo = 1;
+    strcpy(j->mensaje, "Trofeo colocado aleatoriamente en el mapa.");
 }

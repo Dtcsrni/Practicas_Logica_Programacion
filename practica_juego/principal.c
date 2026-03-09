@@ -127,33 +127,79 @@ static void manejar_instrucciones(Juego *j, char tecla)
     }
 }
 // Maneja teclas cuando el juego está en operación
-static void manejar_jugando(Juego *j, char tecla)
+static void manejar_jugando(Juego *j, char tecla) 
 {
     registrar_tecla(j, tecla);
 
-    // Salida directa desde la partida
-    if (tecla == 'q' || tecla == 'Q')
-    {
-        strcpy(j->mensaje, "Saliendo del juego.");
-        j->estado = ESTADO_SALIR;
-        return;
-    }
     if (tecla == 'p' || tecla == 'P')
     {
-        strcpy(j->mensaje, "Juego pausado.");
+        strcpy(j->mensaje, "Partida pausada.");
         j->estado = ESTADO_PAUSA;
         return;
     }
-    // Calculo de movimiento
-    int dx = 0;
-    int dy = 0;
+
+    int dx, dy;
     if (tecla_a_vector(tecla, &dx, &dy))
     {
-        juego_intentar_mover(j, dx, dy);
+        int nuevo_x = j->jugador_x + dx;
+        int nuevo_y = j->jugador_y + dy;
+
+        // Verificar colisiones con paredes
+        if (j->mapa[nuevo_y][nuevo_x] == '#')
+        {
+            j->choques++;
+            strcpy(j->mensaje, "Chocaste contra una pared!");
+        }
+        else
+        {
+            j->jugador_x = nuevo_x;
+            j->jugador_y = nuevo_y;
+            j->pasos++;
+
+            // Verificar si se alcanzó la meta
+            if (j->jugador_x == j->meta_x && j->jugador_y == j->meta_y)
+            {
+                strcpy(j->mensaje, "¡Has alcanzado la meta! Presiona R para reiniciar, M para menu o Q para salir.");
+                j->estado = ESTADO_VICTORIA;
+            }
+            else
+            {
+                strcpy(j->mensaje, "Te moviste.");
+            }
+        }
     }
     else
     {
-        strcpy(j->mensaje, "Comando no valido.");
+        strcpy(j->mensaje, "Comando no valido. Usa WASD para moverte o P para pausar.");
+    }
+}
+static void manejar_victoria(Juego *j, char tecla)
+{
+    registrar_tecla(j, tecla);
+
+    // Manejo de victoria
+    if (tecla == 'r' || tecla == 'R')
+    {
+        strcpy(j->mensaje, "Reiniciando partida.");
+        juego_reiniciar_partida(j);
+        j->estado = ESTADO_JUGANDO;
+        return;
+    }
+    else if (tecla == 'm' || tecla == 'M')
+    {
+        j->partida_activa = 0;
+        strcpy(j->mensaje, "Regresaste al menu principal.");
+        j->estado = ESTADO_MENU;
+    }
+    else if (tecla == 'q' || tecla == 'Q')
+    {
+        strcpy(j->mensaje, "Saliendo del juego.");
+        j->estado = ESTADO_SALIR;
+    }
+
+    else
+    {
+        strcpy(j->mensaje, "Comando no valido. Presiona R para reiniciar, M para menu o Q para salir.");
     }
 }
 
@@ -186,6 +232,10 @@ int main(void)
         case ESTADO_INSTRUCCIONES:
             render_instrucciones(&juego);
             manejar_instrucciones(&juego, entrada_leer_tecla());
+            break;
+        case ESTADO_VICTORIA:
+            render_victoria(&juego); // Reutilizamos el render del juego para mostrar el mensaje de victoria
+            manejar_victoria(&juego, entrada_leer_tecla());
             break;
         default:
             break;
