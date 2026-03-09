@@ -1,5 +1,5 @@
 #include "juego.h"
-#include "string.h"
+#include <string.h>
 
 // Mapa base fijo
 
@@ -58,6 +58,10 @@ void juego_reiniciar_partida(Juego *j)
         }
     }
     j->pasos = 0;
+    j->choques = 0;
+    j->partida_activa = 1;
+    j->ultima_tecla = '-';
+    strcpy(j->mensaje, "Partida iniciada.");
 }
 
 void juego_inicializar(Juego *j)
@@ -68,6 +72,8 @@ void juego_inicializar(Juego *j)
 
     // El programa ya no inicia directamente jugando si no, en un menú principal
     j->estado = ESTADO_MENU;
+    j->partida_activa = 0;
+    strcpy(j->mensaje, "Bienvenido al laberinto.");
 }
 void juego_intentar_mover(Juego *j, int dx, int dy)
 {
@@ -76,10 +82,15 @@ void juego_intentar_mover(Juego *j, int dx, int dy)
     int ny = j->jugador_y + dy;
     // Verificamos colision: si es pared, no hacemos nada
     if (juego_es_pared(j, nx, ny))
+    {
+        j->choques++;
+        strcpy(j->mensaje, "Has chocado contra una pared.");
         return;
+    }
 
     // Si no es pared, actualizamos posicion del jugador
     j->jugador_x = nx;
     j->jugador_y = ny;
     j->pasos++;
+    strcpy(j->mensaje, "Movimiento realizado.");
 }
