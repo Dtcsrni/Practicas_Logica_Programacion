@@ -137,40 +137,21 @@ static void manejar_jugando(Juego *j, char tecla)
         j->estado = ESTADO_PAUSA;
         return;
     }
+    if (tecla == 'q' || tecla == 'Q')
+    {
+        strcpy(j->mensaje, "Saliendo del juego.");
+        j->estado = ESTADO_SALIR;
+        return;
+    }
 
     int dx, dy;
     if (tecla_a_vector(tecla, &dx, &dy))
     {
-        int nuevo_x = j->jugador_x + dx;
-        int nuevo_y = j->jugador_y + dy;
-
-        // Verificar colisiones con paredes
-        if (j->mapa[nuevo_y][nuevo_x] == '#')
-        {
-            j->choques++;
-            strcpy(j->mensaje, "Chocaste contra una pared!");
-        }
-        else
-        {
-            j->jugador_x = nuevo_x;
-            j->jugador_y = nuevo_y;
-            j->pasos++;
-
-            // Verificar si se alcanzó la meta
-            if (j->jugador_x == j->meta_x && j->jugador_y == j->meta_y)
-            {
-                strcpy(j->mensaje, "¡Has alcanzado la meta! Presiona R para reiniciar, M para menu o Q para salir.");
-                j->estado = ESTADO_VICTORIA;
-            }
-            else
-            {
-                strcpy(j->mensaje, "Te moviste.");
-            }
-        }
+        juego_intentar_mover(j, dx, dy);
     }
     else
     {
-        strcpy(j->mensaje, "Comando no valido. Usa WASD para moverte o P para pausar.");
+        strcpy(j->mensaje, "Comando no valido. Usa WASD para moverte, P para pausar o Q para salir.");
     }
 }
 static void manejar_victoria(Juego *j, char tecla)

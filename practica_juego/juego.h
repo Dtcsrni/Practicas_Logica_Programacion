@@ -4,6 +4,7 @@
 //Definir dimensiones fijas del mapa para la sesion
 #define ALTO 10
 #define ANCHO 20
+#define TROFEOS_PARA_GANAR 10
 
 //Definir enumación para representar el estado actual del programa
 //Gracias a la enumación, podemos conocer en todo momento el estado del sistema
@@ -31,6 +32,7 @@ typedef struct {
     int meta_x; 
     int meta_y;
     int trofeo_activo;
+    int trofeos_capturados;
     EstadoJuego estado;
 } Juego;
 

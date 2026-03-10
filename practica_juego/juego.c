@@ -1,4 +1,5 @@
 #include "juego.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -63,7 +64,8 @@ void juego_reiniciar_partida(Juego *j)
     j->choques = 0;
     j->partida_activa = 1;
     j->ultima_tecla = '-';
-    strcpy(j->mensaje, "Partida iniciada.");
+    j->trofeos_capturados = 0;
+    strcpy(j->mensaje, "Partida iniciada. Captura 10 trofeos para ganar.");
 
     juego_agregar_trofeo_aleatorio(j);
 }
@@ -97,14 +99,29 @@ void juego_intentar_mover(Juego *j, int dx, int dy)
     j->jugador_x = nx;
     j->jugador_y = ny;
     j->pasos++;
+
     strcpy(j->mensaje, "Movimiento realizado.");
-    // Verificar si el usuario llego a la meta
     if (j->trofeo_activo && j->jugador_x == j->meta_x && j->jugador_y == j->meta_y)
     {
-        j->estado = ESTADO_VICTORIA;
-        j->partida_activa = 0;
-        j->trofeo_activo = 0; // Desactivar el trofeo para que no se siga mostrando en el mapa
-        strcpy(j->mensaje, "¡Has alcanzado la meta!");
+        j->trofeos_capturados++;
+
+        if (j->trofeos_capturados >= TROFEOS_PARA_GANAR)
+        {
+            j->trofeo_activo = 0;
+            j->estado = ESTADO_VICTORIA;
+            j->partida_activa = 0;
+            strcpy(j->mensaje, "¡Ganaste! Capturaste los 10 trofeos.");
+        }
+        else
+        {
+            juego_agregar_trofeo_aleatorio(j);
+            snprintf(
+                j->mensaje,
+                sizeof(j->mensaje),
+                "Capturaste un trofeo. Llevas %d de %d.",
+                j->trofeos_capturados,
+                TROFEOS_PARA_GANAR);
+        }
     }
 }
 
