@@ -13,5 +13,6 @@ void render_instrucciones(const Juego *j);
 void render_juego(const Juego *j);
 void render_victoria(const Juego *j);
 void juego_agregar_trofeo_aleatorio(Juego *j);
+void render_derrota(const Juego *j);
 
 #endif // RENDER_H

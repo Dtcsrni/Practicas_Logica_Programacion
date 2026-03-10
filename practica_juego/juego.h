@@ -6,6 +6,7 @@
 #define ANCHO 20
 #define TROFEOS_PARA_GANAR 10
 
+
 //Definir enumación para representar el estado actual del programa
 //Gracias a la enumación, podemos conocer en todo momento el estado del sistema
 typedef enum {
@@ -15,7 +16,8 @@ typedef enum {
     ESTADO_CONFIRMAR_MENU,
     ESTADO_INSTRUCCIONES,
     ESTADO_SALIR,
-    ESTADO_VICTORIA
+    ESTADO_VICTORIA,
+    ESTADO_DERROTA
 } EstadoJuego;
 
 
@@ -31,6 +33,9 @@ typedef struct {
     char mensaje[128];
     int meta_x; 
     int meta_y;
+    int enemigo_x;
+    int enemigo_y;
+    int enemigo_activo;
     int trofeo_activo;
     int trofeos_capturados;
     EstadoJuego estado;
@@ -46,6 +51,8 @@ int juego_es_pared(const Juego *j, int x, int y);
 
 void juego_agregar_trofeo(Juego *j, int x, int y);
 void juego_agregar_trofeo_aleatorio(Juego *j);
-
+void juego_mover_enemigo(Juego *j);
+int juego_posicion_ocupada(const Juego *j, int x, int y);
+int juego_agregar_enemigo_aleatorio(Juego *j);
 #endif // JUEGO_H
 

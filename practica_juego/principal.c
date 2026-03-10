@@ -127,7 +127,7 @@ static void manejar_instrucciones(Juego *j, char tecla)
     }
 }
 // Maneja teclas cuando el juego está en operación
-static void manejar_jugando(Juego *j, char tecla) 
+static void manejar_jugando(Juego *j, char tecla)
 {
     registrar_tecla(j, tecla);
 
@@ -147,7 +147,13 @@ static void manejar_jugando(Juego *j, char tecla)
     int dx, dy;
     if (tecla_a_vector(tecla, &dx, &dy))
     {
+        int x_antes = j->jugador_x;
+        int y_antes = j->jugador_y;
         juego_intentar_mover(j, dx, dy);
+        if (j->estado == ESTADO_JUGANDO && (j->jugador_x != x_antes || j->jugador_y != y_antes))
+        {
+            juego_mover_enemigo(j);
+        }
     }
     else
     {
@@ -183,7 +189,35 @@ static void manejar_victoria(Juego *j, char tecla)
         strcpy(j->mensaje, "Comando no valido. Presiona R para reiniciar, M para menu o Q para salir.");
     }
 }
+static void manejar_derrota(Juego *j, char tecla)
+{
+    registrar_tecla(j, tecla);
 
+    // Manejo de derrota
+    if (tecla == 'r' || tecla == 'R')
+    {
+        strcpy(j->mensaje, "Reiniciando partida.");
+        juego_reiniciar_partida(j);
+        j->estado = ESTADO_JUGANDO;
+        return;
+    }
+    else if (tecla == 'm' || tecla == 'M')
+    {
+        j->partida_activa = 0;
+        strcpy(j->mensaje, "Regresaste al menu principal.");
+        j->estado = ESTADO_MENU;
+    }
+    else if (tecla == 'q' || tecla == 'Q')
+    {
+        strcpy(j->mensaje, "Saliendo del juego.");
+        j->estado = ESTADO_SALIR;
+    }
+
+    else
+    {
+        strcpy(j->mensaje, "Comando no valido. Presiona R para reiniciar, M para menu o Q para salir.");
+    }
+}
 int main(void)
 {
     Juego juego;
@@ -217,6 +251,10 @@ int main(void)
         case ESTADO_VICTORIA:
             render_victoria(&juego); // Reutilizamos el render del juego para mostrar el mensaje de victoria
             manejar_victoria(&juego, entrada_leer_tecla());
+            break;
+        case ESTADO_DERROTA:
+            render_derrota(&juego);
+            manejar_derrota(&juego, entrada_leer_tecla());
             break;
         default:
             break;

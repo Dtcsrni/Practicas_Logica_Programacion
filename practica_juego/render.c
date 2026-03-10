@@ -58,6 +58,8 @@ void render_juego(const Juego *j)
            j->pasos,
            j->jugador_x,
            j->jugador_y,
+           j->enemigo_x,
+           j->enemigo_y,
            j->ultima_tecla,
            j->choques,
            j->trofeos_capturados,
@@ -72,7 +74,11 @@ void render_juego(const Juego *j)
             if (x == j->jugador_x && y == j->jugador_y)
             {
                 putchar('@'); // Dibujar al jugador
-            }else if(j->trofeo_activo && x == j->meta_x && y == j->meta_y)
+            }else if(j-> enemigo_activo && x == j->enemigo_x && y == j->enemigo_y)
+            {
+                putchar('X'); // Dibujar al enemigo
+            }
+            else if(j->trofeo_activo && x == j->meta_x && y == j->meta_y)
             {
                 putchar('$'); // Dibujar el trofeo
             }
@@ -87,11 +93,21 @@ void render_juego(const Juego *j)
 }
 
 
+
 void render_victoria(const Juego *j)
 {
     consola_limpiar_simple();
     printf("=== ¡VICTORIA! ===\n");
     printf("Capturaste %d trofeos en %d pasos y %d choques.\n", j->trofeos_capturados, j->pasos, j->choques);
+    printf("Presiona M para volver al menu principal, R para reiniciar o Q para salir.\n");
+    printf("\nEstado: %s\n", j->mensaje);
+}
+
+void render_derrota(const Juego *j)
+{
+    consola_limpiar_simple();
+    printf("=== DERROTA ===\n");
+    printf("El enemigo te atrapó después de %d pasos y %d choques.\n", j->pasos, j->choques);
     printf("Presiona M para volver al menu principal, R para reiniciar o Q para salir.\n");
     printf("\nEstado: %s\n", j->mensaje);
 }
