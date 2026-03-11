@@ -3,6 +3,9 @@
 #include "entrada.h"
 #include "consola.h"
 #include <string.h>
+#include "persistencia.h"
+
+#define ARCHIVO_PARTIDA "partida_guardada.txt"
 
 static void registrar_tecla(Juego *j, char tecla)
 {
@@ -79,7 +82,41 @@ static void manejar_pausa(Juego *j, char tecla)
     {
         strcpy(j->mensaje, "Partida reanudada.");
         j->estado = ESTADO_JUGANDO;
+    }else if(tecla == 'g' || tecla == 'G')
+    {
+        if (juego_guardar_partida(j, ARCHIVO_PARTIDA))
+        {
+            strcpy(j->mensaje, "Partida guardada exitosamente.");
+        }
+        else
+        {
+            strcpy(j->mensaje, "Error al guardar la partida.");
+        }
+    }else if(tecla == 'c' || tecla == 'C')
+    {
+        if (juego_cargar_partida(j, ARCHIVO_PARTIDA))
+        {
+            strcpy(j->mensaje, "Partida cargada exitosamente.");
+            j->estado = ESTADO_JUGANDO;
+        }
+        else
+        {
+            strcpy(j->mensaje, "Error al cargar la partida.");
+        }
     }
+    else if(tecla == 'c' || tecla == 'C')
+    {
+        if (juego_cargar_partida(j, ARCHIVO_PARTIDA))
+        {
+            strcpy(j->mensaje, "Partida cargada exitosamente.");
+            j->estado = ESTADO_JUGANDO;
+        }
+        else
+        {
+            strcpy(j->mensaje, "Error al cargar la partida.");
+        }
+    }
+
     else if (tecla == 'm' || tecla == 'M')
     {
         strcpy(j->mensaje, "Confirma si deseas volver al menu principal.");
@@ -129,7 +166,10 @@ static void manejar_instrucciones(Juego *j, char tecla)
 // Maneja teclas cuando el juego está en operación
 static void manejar_jugando(Juego *j, char tecla)
 {
-    registrar_tecla(j, tecla);
+    if (tecla != '\0')
+    {
+        registrar_tecla(j, tecla);
+    }
 
     if (tecla == 'p' || tecla == 'P')
     {
@@ -147,17 +187,16 @@ static void manejar_jugando(Juego *j, char tecla)
     int dx, dy;
     if (tecla_a_vector(tecla, &dx, &dy))
     {
-        int x_antes = j->jugador_x;
-        int y_antes = j->jugador_y;
         juego_intentar_mover(j, dx, dy);
-        if (j->estado == ESTADO_JUGANDO && (j->jugador_x != x_antes || j->jugador_y != y_antes))
-        {
-            juego_mover_enemigo(j);
-        }
     }
-    else
+    else if (tecla != '\0')
     {
         strcpy(j->mensaje, "Comando no valido. Usa WASD para moverte, P para pausar o Q para salir.");
+    }
+
+    if (j->estado == ESTADO_JUGANDO)
+    {
+        juego_mover_enemigo(j);
     }
 }
 static void manejar_victoria(Juego *j, char tecla)
@@ -234,7 +273,7 @@ int main(void)
             break;
         case ESTADO_JUGANDO:
             render_juego(&juego);
-            manejar_jugando(&juego, entrada_leer_tecla());
+            manejar_jugando(&juego, entrada_leer_tecla_con_timeout(250));
             break;
         case ESTADO_PAUSA:
             render_pausa(&juego);

@@ -1,5 +1,6 @@
 #include "entrada.h"
 #include <conio.h>
+#include <windows.h>
 
 char entrada_leer_tecla(void)
 {
@@ -12,4 +13,22 @@ char entrada_leer_tecla(void)
     }
 
     return (char)tecla;
+}
+
+char entrada_leer_tecla_con_timeout(int timeout_ms)
+{
+    const int espera_ms = 10;
+    int transcurrido = 0;
+
+    while (transcurrido < timeout_ms)
+    {
+        if (_kbhit())
+        {
+            return entrada_leer_tecla();
+        }
+        Sleep(espera_ms);
+        transcurrido += espera_ms;
+    }
+
+    return '\0';
 }

@@ -4,7 +4,9 @@
 //Definir dimensiones fijas del mapa para la sesion
 #define ALTO 10
 #define ANCHO 20
-#define TROFEOS_PARA_GANAR 10
+#define TROFEOS_PARA_GANAR 20
+#define MAX_ENEMIGOS 5
+#define ENEMIGOS_INICIALES 3
 
 
 //Definir enumación para representar el estado actual del programa
@@ -26,6 +28,9 @@ typedef struct {
     char mapa[ALTO][ANCHO+1]; //+1 para el caracter nulo de fin de linea
     int jugador_x;
     int jugador_y;
+    int inicio_x;
+    int inicio_y;
+    int vidas;
     int pasos;
     int choques;
     int partida_activa;
@@ -33,11 +38,13 @@ typedef struct {
     char mensaje[128];
     int meta_x; 
     int meta_y;
-    int enemigo_x;
-    int enemigo_y;
-    int enemigo_activo;
+    int enemigos_x[MAX_ENEMIGOS];
+    int enemigos_y[MAX_ENEMIGOS];
+    int enemigos_activos[MAX_ENEMIGOS];
+    int total_enemigos;
     int trofeo_activo;
     int trofeos_capturados;
+    int proxima_meta_vida;
     EstadoJuego estado;
 } Juego;
 
@@ -52,6 +59,7 @@ int juego_es_pared(const Juego *j, int x, int y);
 void juego_agregar_trofeo(Juego *j, int x, int y);
 void juego_agregar_trofeo_aleatorio(Juego *j);
 void juego_mover_enemigo(Juego *j);
+int juego_hay_enemigo_en(const Juego *j, int x, int y);
 int juego_posicion_ocupada(const Juego *j, int x, int y);
 int juego_agregar_enemigo_aleatorio(Juego *j);
 #endif // JUEGO_H

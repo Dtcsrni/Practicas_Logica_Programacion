@@ -3,6 +3,18 @@
 #include <stdio.h>
 #define nombre_juego "Laberinto del CUH"
 
+static int render_hay_enemigo_en(const Juego *j, int x, int y)
+{
+    for (int i = 0; i < MAX_ENEMIGOS; i++)
+    {
+        if (j->enemigos_activos[i] && j->enemigos_x[i] == x && j->enemigos_y[i] == y)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void render_menu(const Juego *j)
 {
     consola_limpiar_simple();
@@ -20,9 +32,11 @@ void render_pausa(const Juego *j)
     consola_limpiar_simple();
     printf("=== JUEGO PAUSADO ===\n");
     printf("P. Continuar\n");
+    printf("G. Guardar partida\n");
+    printf("C. Cargar partida\n");
     printf("M. Volver al menu principal\n");
     printf("\nEstado: %s\n", j->mensaje);
-    printf("Seleccione una opción: ");
+    printf("Seleccione una opcion: ");
 }
 
 void render_confirmar_menu(const Juego *j)
@@ -40,64 +54,62 @@ void render_instrucciones(const Juego *j)
 {
     consola_limpiar_simple();
     printf("=== INSTRUCCIONES ===\n");
-    printf("Objetivo: captura 10 trofeos en el laberinto para ganar.\n");
+    printf("Objetivo: captura 20 trofeos en el laberinto para ganar.\n");
     printf("Movimiento: W arriba, A izquierda, S abajo, D derecha.\n");
-    printf("P: pausar partida.\n");
-    printf("Q: salir del juego.\n");
-    printf("Cada trofeo aparece en una posicion aleatoria al iniciar y al capturarlo.\n");
-    printf("Si chocas contra una pared, el HUD lo mostrara.\n");
+    printf("Hay varios enemigos y se mueven solos en cada tick.\n");
+    printf("Colision con enemigo: -1 vida, -1 trofeo y vuelves al inicio.\n");
+    printf("Cada 5 trofeos obtenidos ganas 1 vida extra.\n");
+    printf("P: pausar partida. Q: salir del juego.\n");
     printf("Presiona B para volver al menu principal.\n");
     printf("\nEstado: %s\n", j->mensaje);
 }
 
 void render_juego(const Juego *j)
 {
-    // Limpiamos la pantalla antes de dibujar
     consola_limpiar_simple();
-    printf("Pasos: %d | Posicion: (%d, %d) | Ultima tecla: %c | Choques: %d | Trofeos: %d/%d\n",
+    printf("Pasos: %d | Posicion: (%d, %d) | Ultima tecla: %c | Choques: %d | Vidas: %d | Trofeos: %d/%d | Enemigos: %d\n",
            j->pasos,
            j->jugador_x,
            j->jugador_y,
-           j->enemigo_x,
-           j->enemigo_y,
            j->ultima_tecla,
            j->choques,
+           j->vidas,
            j->trofeos_capturados,
-           TROFEOS_PARA_GANAR);
+           TROFEOS_PARA_GANAR,
+           j->total_enemigos);
     printf("Estado: %s\n\n", j->mensaje);
 
-    // Dibujar el mapa y al jugador
     for (int y = 0; y < ALTO; y++)
     {
         for (int x = 0; x < ANCHO; x++)
         {
             if (x == j->jugador_x && y == j->jugador_y)
             {
-                putchar('@'); // Dibujar al jugador
-            }else if(j-> enemigo_activo && x == j->enemigo_x && y == j->enemigo_y)
-            {
-                putchar('X'); // Dibujar al enemigo
+                putchar('@');
             }
-            else if(j->trofeo_activo && x == j->meta_x && y == j->meta_y)
+            else if (render_hay_enemigo_en(j, x, y))
             {
-                putchar('$'); // Dibujar el trofeo
+                putchar('X');
+            }
+            else if (j->trofeo_activo && x == j->meta_x && y == j->meta_y)
+            {
+                putchar('$');
             }
             else
             {
-                putchar(j->mapa[y][x]); // Dibujar el mapa
+                putchar(j->mapa[y][x]);
             }
         }
-        putchar('\n'); // Nueva línea al final de cada fila
+        putchar('\n');
     }
+
     puts("\nControles: W/A/S/D mover, P pausa, Q salir");
 }
-
-
 
 void render_victoria(const Juego *j)
 {
     consola_limpiar_simple();
-    printf("=== ¡VICTORIA! ===\n");
+    printf("=== VICTORIA ===\n");
     printf("Capturaste %d trofeos en %d pasos y %d choques.\n", j->trofeos_capturados, j->pasos, j->choques);
     printf("Presiona M para volver al menu principal, R para reiniciar o Q para salir.\n");
     printf("\nEstado: %s\n", j->mensaje);
@@ -107,7 +119,7 @@ void render_derrota(const Juego *j)
 {
     consola_limpiar_simple();
     printf("=== DERROTA ===\n");
-    printf("El enemigo te atrapó después de %d pasos y %d choques.\n", j->pasos, j->choques);
+    printf("Te quedaste sin vidas despues de %d pasos y %d choques.\n", j->pasos, j->choques);
     printf("Presiona M para volver al menu principal, R para reiniciar o Q para salir.\n");
     printf("\nEstado: %s\n", j->mensaje);
 }
