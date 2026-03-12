@@ -48,7 +48,7 @@ static void render_base_juego(const Juego *j)
             }
             else if (render_hay_enemigo_en(j, x, y))
             {
-                putchar('E');
+                putchar('X');
             }
             else if (j->trofeo_activo && x == j->meta_x && y == j->meta_y)
             {

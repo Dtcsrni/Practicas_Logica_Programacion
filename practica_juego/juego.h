@@ -8,6 +8,11 @@
 #define MAX_ENEMIGOS 5
 #define ENEMIGOS_INICIALES 1
 
+#define MUNICION_INICIAL 6
+#define MUNICION_MAXIMA 12
+#define OBSTACULOS_MIN 10
+#define OBSTACULOS_MAX 30
+
 //Definir enumacion para representar el estado actual del programa
 typedef enum {
     ESTADO_MENU,
@@ -19,6 +24,11 @@ typedef enum {
     ESTADO_VICTORIA,
     ESTADO_DERROTA
 } EstadoJuego;
+
+typedef enum{
+    ARMA_CUCHILLO = 0,
+    ARMA_PISTOLA = 1
+} TipoArma;
 
 //Definir estructura utilitaria para almacenar estado del juego
 typedef struct {
@@ -44,6 +54,11 @@ typedef struct {
     int trofeos_capturados;
     int proxima_meta_vida;
     EstadoJuego estado;
+    int dir_x;
+    int dir_y;
+    TipoArma arma_actual;
+    int municion;
+    int enemigos_eliminados;
 } Juego;
 
 //Funciones para inicializar y actualizar el juego
@@ -60,4 +75,9 @@ int juego_agregar_enemigo_aleatorio(Juego *j);
 void juego_agregar_trofeo(Juego *j, int x, int y);
 void juego_agregar_trofeo_aleatorio(Juego *j);
 
+void juego_generar_mapa_dinamico(Juego *j);
+int juego_indice_enemigo_en(const Juego *j, int x, int y);
+void juego_eliminar_enemigo(Juego *j, int indice);
+void juego_disparar_pistola(Juego *j);
+void juego_atacar_cuchillo(Juego *j);
 #endif // JUEGO_H
