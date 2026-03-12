@@ -1,7 +1,7 @@
 #ifndef JUEGO_H
 #define JUEGO_H
 
-//Definir dimensiones fijas del mapa para la sesion
+// Definir dimensiones fijas del mapa para la sesion
 #define ALTO 10
 #define ANCHO 20
 #define TROFEOS_PARA_GANAR 20
@@ -13,8 +13,9 @@
 #define OBSTACULOS_MIN 10
 #define OBSTACULOS_MAX 30
 
-//Definir enumacion para representar el estado actual del programa
-typedef enum {
+// Definir enumacion para representar el estado actual del programa
+typedef enum
+{
     ESTADO_MENU,
     ESTADO_JUGANDO,
     ESTADO_PAUSA,
@@ -25,13 +26,15 @@ typedef enum {
     ESTADO_DERROTA
 } EstadoJuego;
 
-typedef enum{
+typedef enum
+{
     ARMA_CUCHILLO = 0,
     ARMA_PISTOLA = 1
 } TipoArma;
 
-//Definir estructura utilitaria para almacenar estado del juego
-typedef struct {
+// Definir estructura utilitaria para almacenar estado del juego
+typedef struct
+{
     char mapa[ALTO][ANCHO + 1];
     int jugador_x;
     int jugador_y;
@@ -61,7 +64,7 @@ typedef struct {
     int enemigos_eliminados;
 } Juego;
 
-//Funciones para inicializar y actualizar el juego
+// Funciones para inicializar y actualizar el juego
 void juego_inicializar(Juego *j);
 void juego_reiniciar_partida(Juego *j);
 void juego_intentar_mover(Juego *j, int dx, int dy);
