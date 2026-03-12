@@ -1,11 +1,8 @@
 #include "juego.h"
 #include "render.h"
 #include "entrada.h"
-#include "consola.h"
-#include <string.h>
 #include "persistencia.h"
-
-#define ARCHIVO_PARTIDA "partida_guardada.txt"
+#include <string.h>
 
 static void registrar_tecla(Juego *j, char tecla)
 {
@@ -19,7 +16,6 @@ static void registrar_tecla(Juego *j, char tecla)
     }
 }
 
-// Funcion auxiliar para convertir una tecla a desplazamiento
 static int tecla_a_vector(char tecla, int *dx, int *dy)
 {
     *dx = 0;
@@ -45,7 +41,31 @@ static int tecla_a_vector(char tecla, int *dx, int *dy)
         *dx = 1;
         return 1;
     }
-    return 0; // Tecla no reconocida
+
+    return 0;
+}
+
+static void guardar_partida_actual(Juego *j)
+{
+    if (juego_guardar_partida(j, ARCHIVO_PARTIDA))
+    {
+        strcpy(j->mensaje, "Partida guardada exitosamente.");
+    }
+    else
+    {
+        strcpy(j->mensaje, "Error al guardar la partida.");
+    }
+}
+
+static int cargar_partida_actual(Juego *j)
+{
+    if (juego_cargar_partida(j, ARCHIVO_PARTIDA))
+    {
+        return 1;
+    }
+
+    strcpy(j->mensaje, "Error al cargar la partida.");
+    return 0;
 }
 
 static void manejar_menu(Juego *j, char tecla)
@@ -54,16 +74,22 @@ static void manejar_menu(Juego *j, char tecla)
 
     if (tecla == '1')
     {
-        // Al elegir jugar reiniciamos la partida y cambiamos el estado a jugando
         juego_reiniciar_partida(j);
         j->estado = ESTADO_JUGANDO;
     }
     else if (tecla == '2')
     {
+        if (!cargar_partida_actual(j))
+        {
+            j->estado = ESTADO_MENU;
+        }
+    }
+    else if (tecla == '3')
+    {
         j->estado = ESTADO_INSTRUCCIONES;
         strcpy(j->mensaje, "Consulta los controles antes de jugar.");
     }
-    else if (tecla == '3')
+    else if (tecla == '4')
     {
         strcpy(j->mensaje, "Saliendo del juego.");
         j->estado = ESTADO_SALIR;
@@ -73,7 +99,7 @@ static void manejar_menu(Juego *j, char tecla)
         strcpy(j->mensaje, "Comando no valido.");
     }
 }
-// Maneja teclas cuando el juego está en pausa
+
 static void manejar_pausa(Juego *j, char tecla)
 {
     registrar_tecla(j, tecla);
@@ -82,41 +108,15 @@ static void manejar_pausa(Juego *j, char tecla)
     {
         strcpy(j->mensaje, "Partida reanudada.");
         j->estado = ESTADO_JUGANDO;
-    }else if(tecla == 'g' || tecla == 'G')
-    {
-        if (juego_guardar_partida(j, ARCHIVO_PARTIDA))
-        {
-            strcpy(j->mensaje, "Partida guardada exitosamente.");
-        }
-        else
-        {
-            strcpy(j->mensaje, "Error al guardar la partida.");
-        }
-    }else if(tecla == 'c' || tecla == 'C')
-    {
-        if (juego_cargar_partida(j, ARCHIVO_PARTIDA))
-        {
-            strcpy(j->mensaje, "Partida cargada exitosamente.");
-            j->estado = ESTADO_JUGANDO;
-        }
-        else
-        {
-            strcpy(j->mensaje, "Error al cargar la partida.");
-        }
     }
-    else if(tecla == 'c' || tecla == 'C')
+    else if (tecla == 'g' || tecla == 'G')
     {
-        if (juego_cargar_partida(j, ARCHIVO_PARTIDA))
-        {
-            strcpy(j->mensaje, "Partida cargada exitosamente.");
-            j->estado = ESTADO_JUGANDO;
-        }
-        else
-        {
-            strcpy(j->mensaje, "Error al cargar la partida.");
-        }
+        guardar_partida_actual(j);
     }
-
+    else if (tecla == 'c' || tecla == 'C')
+    {
+        (void)cargar_partida_actual(j);
+    }
     else if (tecla == 'm' || tecla == 'M')
     {
         strcpy(j->mensaje, "Confirma si deseas volver al menu principal.");
@@ -163,9 +163,12 @@ static void manejar_instrucciones(Juego *j, char tecla)
         strcpy(j->mensaje, "Comando no valido. Presiona B para volver.");
     }
 }
-// Maneja teclas cuando el juego está en operación
+
 static void manejar_jugando(Juego *j, char tecla)
 {
+    int dx;
+    int dy;
+
     if (tecla != '\0')
     {
         registrar_tecla(j, tecla);
@@ -177,6 +180,16 @@ static void manejar_jugando(Juego *j, char tecla)
         j->estado = ESTADO_PAUSA;
         return;
     }
+    if (tecla == 'g' || tecla == 'G')
+    {
+        guardar_partida_actual(j);
+        return;
+    }
+    if (tecla == 'c' || tecla == 'C')
+    {
+        (void)cargar_partida_actual(j);
+        return;
+    }
     if (tecla == 'q' || tecla == 'Q')
     {
         strcpy(j->mensaje, "Saliendo del juego.");
@@ -184,14 +197,13 @@ static void manejar_jugando(Juego *j, char tecla)
         return;
     }
 
-    int dx, dy;
     if (tecla_a_vector(tecla, &dx, &dy))
     {
         juego_intentar_mover(j, dx, dy);
     }
     else if (tecla != '\0')
     {
-        strcpy(j->mensaje, "Comando no valido. Usa WASD para moverte, P para pausar o Q para salir.");
+        strcpy(j->mensaje, "Comando no valido. Usa WASD, P, G, C o Q.");
     }
 
     if (j->estado == ESTADO_JUGANDO)
@@ -199,17 +211,16 @@ static void manejar_jugando(Juego *j, char tecla)
         juego_mover_enemigo(j);
     }
 }
+
 static void manejar_victoria(Juego *j, char tecla)
 {
     registrar_tecla(j, tecla);
 
-    // Manejo de victoria
     if (tecla == 'r' || tecla == 'R')
     {
         strcpy(j->mensaje, "Reiniciando partida.");
         juego_reiniciar_partida(j);
         j->estado = ESTADO_JUGANDO;
-        return;
     }
     else if (tecla == 'm' || tecla == 'M')
     {
@@ -222,23 +233,21 @@ static void manejar_victoria(Juego *j, char tecla)
         strcpy(j->mensaje, "Saliendo del juego.");
         j->estado = ESTADO_SALIR;
     }
-
     else
     {
         strcpy(j->mensaje, "Comando no valido. Presiona R para reiniciar, M para menu o Q para salir.");
     }
 }
+
 static void manejar_derrota(Juego *j, char tecla)
 {
     registrar_tecla(j, tecla);
 
-    // Manejo de derrota
     if (tecla == 'r' || tecla == 'R')
     {
         strcpy(j->mensaje, "Reiniciando partida.");
         juego_reiniciar_partida(j);
         j->estado = ESTADO_JUGANDO;
-        return;
     }
     else if (tecla == 'm' || tecla == 'M')
     {
@@ -251,18 +260,18 @@ static void manejar_derrota(Juego *j, char tecla)
         strcpy(j->mensaje, "Saliendo del juego.");
         j->estado = ESTADO_SALIR;
     }
-
     else
     {
         strcpy(j->mensaje, "Comando no valido. Presiona R para reiniciar, M para menu o Q para salir.");
     }
 }
+
 int main(void)
 {
     Juego juego;
 
     juego_inicializar(&juego);
-    // Ciclo principal del juego.
+
     while (juego.estado != ESTADO_SALIR)
     {
         switch (juego.estado)
@@ -288,7 +297,7 @@ int main(void)
             manejar_instrucciones(&juego, entrada_leer_tecla());
             break;
         case ESTADO_VICTORIA:
-            render_victoria(&juego); // Reutilizamos el render del juego para mostrar el mensaje de victoria
+            render_victoria(&juego);
             manejar_victoria(&juego, entrada_leer_tecla());
             break;
         case ESTADO_DERROTA:
@@ -299,5 +308,6 @@ int main(void)
             break;
         }
     }
+
     return 0;
 }
