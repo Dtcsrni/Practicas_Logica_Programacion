@@ -79,7 +79,7 @@ void render_menu(const Juego *j)
 void render_pausa(const Juego *j)
 {
     render_base_juego(j);
-    puts("\nPAUSA | P continuar | G guardar | C cargar | M menu");
+    printf("PAUSA: P continuar | G guardar | C cargar | M menu\n");
 }
 
 void render_confirmar_menu(const Juego *j)
